@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+	<link rel='stylesheet' href='styles/js-snackbar.css' />
+	<script src="scripts/js-snackbar.js"></script>
+    <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
+	<script src="node_modules/socketio-file-upload/client.js"></script>
+    <script>
+		$(() => {
+			var socket = io('http://localhost:8007');
+			socket.on('connect', () => {
+				var loader = new SocketIOFileUpload(socket);
+				loader.listenOnInput(document.getElementById("fu"))
+				loader.listenOnDrop(document.getElementById("drop"));
+				$('#pconnect').show();
+				$('#connect').click(() => {
+                    
+					socket.emit('register', $('#dname').val());
+				});
+				$('#send').click(() => {
+					socket.emit('chat', $('#msg').val());
+				});
+				$('#browse').click(() => {
+					$('#fu').trigger('click');
+				});
+				socket.on('regsuccess', name => {
+					//console.log(name);
+					$("#hname").html(name);
+					$('#pconnect').hide();
+					$('#pchat').show();
+				});
+				socket.on('userlist', names => {
+					console.log(names);
+					$('#users').empty(),
+						names.forEach(n => {
+							$('#users').append(`<li>${n}</li>`);
+						});
+				});
+				socket.on('message', m => {
+
+					$('#messages').append(`<li>${m.from}: ${m.msg}</li>`);
+
+				});
+				socket.on('uploaded', m => {
+
+					console.log(m);
+					$('#files').append(`<figure>
+						<img src="uploads/${m.type=='image' ? m.file: 'file.png'}" />
+						<figcaption>Uploaded by ${m.from}</figcaption>
+						<a target='_blank' href="uploads/${m.file}">Download</a>
+					</figure>`);
+				});
+				loader.addEventListener("complete", function (event) {
+					console.log(event.success);
+					SnackBar({
+						message: `${event.file.name} uploaded`,
+						position: "bc"
+					});
+				});
+			});
+			
+		});
+	</script>
+</head>
+<body>
+    <nav class="nav">
+        <span class="logo">
+                <img src="images/logo.png" />
+        </span>
+       <span class="brand">My<sup>Shop</sup></span>
+       <span class="spacer"></span>
+        <ul class="menu">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="e-com.html">E-commerce Site</a></li>
+            <li><a href="chat.html">Chat App</a></li>
+        </ul>
+    </nav>
+    <div class="container main">
+         <div id="pconnect" style="display: none;">
+            <input placeholder="display name.." type="text" id="dname" class="text-grow" /><button type="button" id="connect" class="btn">Connect</button>
+         </div>
+         <div id="pchat" style="display: none;" class="my-2">
+            <div class="c-1">
+				<div class='list-header'>Users</div>
+				<ul class='list' id="users">
+
+				</ul>
+			</div>
+            <div class="c-2">
+                <div><h3 id="hname"></h3></div>
+                <div class="flex">
+                    <input placeholder="message..." type="text" id="msg" class="text-grow" />
+					<button type="button" id="send" class="btn">Send</button>
+					<button type="button" id="browse" class="btn">Browse</button>
+                </div>
+                <div id="drop" class="my-1">
+                    Drop files here
+                </div>
+                <div id="pmessages">
+                    <div class='list-header mt'>Messages</div>
+                    <ul class='list' id="messages"></ul>
+                </div>
+                <div id="files" class="files"></div>
+            </div>
+         </div>  
+    </div>
+    <footer class="footer">
+        <p>&copy; Copyright 2022</p>
+    </footer>
+    <input type='file' id='fu' style='display:none;' />
+</body>
+</html>
