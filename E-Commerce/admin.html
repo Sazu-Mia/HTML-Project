@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <style>
+      .two-col-row {
+        display: flex;
+        margin: 15px 0;
+      }
+      .col50 {
+        width: 50%;
+      }
+      .frow {
+        margin-bottom: 0.5rem;
+        display: flex;
+      }
+      .frow input[type="text"],
+      input[type="number"],
+      textarea {
+        flex: 1 1 auto;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+      }
+      .table 
+      {
+        width: 98%;
+        border: solid 1px lightgray;
+        border-collapse: collapse;
+       
+      }
+      .table th, td {
+        padding: .5rem;
+        border: solid 1px lightgray;
+      }
+    </style>
+    <script>
+      
+      $(() => {
+        var products = getProducts();
+        console.log(products);
+        showProducts(products);
+        $("#f").submit((ev) => {
+          ev.preventDefault();
+          products=getProducts();
+          
+          var product = {
+            id: products.length + 1,
+            name: $("#name").val(),
+            price: $("#price").val(),
+            description: $("#desc").val(),
+          };
+          var f = document.getElementById("pic").files[0];
+          var reader = new FileReader();
+          reader.onload = () => {
+            product.picture = reader.result;
+            products.push(product);
+            localStorage.setItem("product-list", JSON.stringify(products));
+            $("#f").trigger('reset');
+            products=getProducts();
+            showProducts(products);
+          };
+          reader.readAsDataURL(f);
+        });
+      });
+      function getProducts(){
+        return localStorage.getItem("product-list") ? JSON.parse(localStorage.getItem("product-list")):[];
+      }
+      function showProducts(products){
+        $("#tbody").empty();
+        products.forEach(p=>{
+            $("#tbody").append(`<tr>
+                    <td>${p.name}</td>
+                    <td>${p.price}</td>
+                    <td>${p.description}</td>
+                </tr>`);
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <nav id="nav">
+      <span class="brand">Brand Logo</span>
+      <span class="fixer"></span>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="e-com.html">E-com</a></li>
+        <li><a href="chat.html">Chat</a></li>
+      </ul>
+    </nav>
+    <div class="container main">
+      <div class="two-col-row">
+        <div class="col50">
+          <h3>Products</h3>
+          <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+
+            </tbody>
+          </table>
+        </div>
+        <div class="col50">
+          <h3>Create new</h3>
+          <form id="f">
+            <div class="frow">
+              <input
+                type="text"
+                placeholder="product name"
+                id="name"
+                required
+              />
+            </div>
+            <div class="frow">
+              <input type="number" placeholder="price.." id="price" required />
+            </div>
+            <div class="frow">
+              <textarea
+                placeholder="brief description"
+                id="desc"
+                required
+              ></textarea>
+            </div>
+            <div class="frow">
+              <input type="file" id="pic" required />
+            </div>
+            <div class="frow">
+              <button type="submit" class="btn">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <p>&copy; Copyright 2022</p>
+    </footer>
+  </body>
+</html>

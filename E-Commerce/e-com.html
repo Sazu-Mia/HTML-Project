@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript</title>
+    <link rel="stylesheet" href="styles/style.css" />
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <style>
+      .admin {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0.5rem;
+      }
+      .admin a {
+        display: block;
+        width: 90px;
+        text-decoration: none;
+        text-align: center;
+        padding: 9px 3px;
+        background-color: brown;
+        color: white;
+      }
+      .products {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+      .product {
+        width: 250px;
+        padding: 0;
+        margin: 0;
+        border: solid 1px #ccc;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+      }
+      .product img {
+        display: block;
+        width: 248px;
+        margin: 0 auto;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+      }
+      .product div {
+        padding: 10px;
+        margin: 7px;
+      }
+      .price {
+        text-align: right;
+        font-weight: 500;
+      }
+      .cart {
+        text-decoration: none;
+        padding: 7px;
+        background-color: blueviolet;
+        color: white;
+        border-radius: 0.25rem;
+        cursor: pointer;
+      }
+      .desc {
+        height: 100px;
+        bottom: 10px;
+        right: 10px;
+      }
+    </style>
+    <script>
+      $(() => {
+        var products = localStorage.getItem("product-list")
+          ? JSON.parse(localStorage.getItem("product-list"))
+          : [];
+          var carts =sessionStorage.getItem("cart")
+          ? JSON.parse(sessionStorage.getItem("cart"))
+          : [];
+        // console.log(products)
+        products.forEach((p) => {
+          $(".products").append(`
+           
+           <div class="product">
+                <img src="${p.picture}" />
+                <div class="desc">${p.description}</div>
+                <div class="price">Price ${p.price}</div>
+                <div style="text-align: right;">
+                  <button data-pk='${p.id}' data-name='${p.name}' data-price='${p.price}' type='button' class="cart">Add to cart</button>
+                </div>
+            </div>
+          
+            `);
+            
+        });
+        $('.cart').on('click', function(){
+              var pk=$(this).data('pk');
+              var pr=$(this).data('price');
+              var n=$(this).data('name');
+              var x= carts.filter(p=> p.id ==pk);
+              if(x && x.length> 0){
+                x[0].qty =x[0].qty+1;
+              }
+              else{
+                carts.push({id:pk,name:n, price:pr, qty: 1});
+              }
+              sessionStorage.setItem('cart', JSON.stringify(carts));
+              console.log(carts);
+            });
+      });
+    </script>
+  </head>
+  <body>
+    <nav id="nav">
+      <span class="brand">Brand Logo</span>
+      <span class="fixer"></span>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="e-com.html">E-com</a></li>
+        <li><a href="chat.html">Chat</a></li>
+      </ul>
+    </nav>
+
+    <div class="container main">
+      <div class="admin">
+        <a href="cart.html">Cart</a>&nbsp;
+        <a href="admin.html">Admin</a>
+      </div>
+      <h3>Welcome to shop</h3>
+      <div class="products my-2"></div>
+    </div>
+    <footer class="footer">
+      <p>&copy; Copyright 2022</p>
+    </footer>
+  </body>
+</html>
